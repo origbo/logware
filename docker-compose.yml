@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:latest
+    container_name: logware-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=logware
+      - MONGO_INITDB_ROOT_PASSWORD=logware_password
+    networks:
+      - logware-network
+
+  # Backend API Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: logware-backend
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - MONGODB_URI=mongodb://logware:logware_password@mongodb:27017/logware?authSource=admin
+      - JWT_SECRET=secure-jwt-secret-change-in-production
+      - FRONTEND_URL=http://localhost:3000
+    volumes:
+      - ./backend/logs:/app/logs
+    networks:
+      - logware-network
+
+  # Frontend Web Application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: logware-frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000/api
+    networks:
+      - logware-network
+
+# Persistent volumes
+volumes:
+  mongodb_data:
+    driver: local
+
+# Network configuration
+networks:
+  logware-network:
+    driver: bridge
