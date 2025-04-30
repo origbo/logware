@@ -161,7 +161,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Contact
 
-Project Link: [https://github.com/your-username/logware](https://github.com/your-username/logware)
+Project Link: [https://github.com/origbo/logware](https://github.com/origbo/logware)
 
 ## Project Overview
 
